@@ -80,6 +80,7 @@ def search(request):
         actions = models.ActionLibrary.objects.filter(**conditions)[start:end].values('id', 'name', 'info',
                                                                                       'level__level', 'machine__name','muscle__name', 'picture__url')
 
+        # print(actions)
         return HttpResponse(json.dumps(list(actions), ensure_ascii=False))
     except Exception as ex:
         return JsonResponse({"code": "500"})
@@ -128,7 +129,7 @@ def getactionbyid(request):
         muscle_picture_url = list(action_models.ActionMusclePicture.objects.filter(action_id=action_id).values('url'))
         if not muscle_picture_url:
             muscle_picture_url=[{'url':'https://w2.dwstatic.com/yy/ojiastoreimage/1479463387706_am_'}]
-        action_picture = list(action_models.ActionPicture.objects.filter(id=action_id).values('url'))
+        action_picture = list(action_models.ActionLibrary.objects.filter(id=action_id).values('picture__url'))
         if not action_picture:
             action_picture=[{'url':'https://w2.dwstatic.com/yy/ojiastoreimage/6f36380e9c3478913497538d77846575.jpg'}]
 
@@ -136,7 +137,7 @@ def getactionbyid(request):
         if not jibendongzuo_picture:
             jibendongzuo_picture=[{'url':'https://w2.dwstatic.com/yy/ojiastoreimage/6f36380e9c3478913497538d77846575.jpg'}]
 
-        print(action)
+        print(action_picture)
         ss = {
             "name": action[0]['name'],
             "info": action[0]['info'],
@@ -144,7 +145,7 @@ def getactionbyid(request):
             "level": action[0]['level__level'],
             "machine_name": action[0]['machine__name'],
             "muscle_name": action[0]['muscle__name'],
-            "action_picture": action_picture[0]['url'],
+            "action_picture": action_picture[0]['picture__url'],
         }
         muscle_url = []
         for muscle in muscle_picture_url:
