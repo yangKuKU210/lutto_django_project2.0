@@ -118,27 +118,27 @@ WSGI_APPLICATION = 'lutto_django_project.wsgi.application'
 
 
 # asdfghjkl-=  cdb-eb7rrzgv.gz.tencentcdb.com  10035
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'dj_luttoapp',
-#         'USER': 'root',
-#         'PASSWORD': '123456',
-#         'HOST': '127.0.0.1',
-#         'PORT': '3306',
-#     }
-# }
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME':'dj_luttoapp',
+        'NAME': 'dj_luttoapp2',
         'USER': 'root',
-        'PASSWORD': 'asdfghjkl-=',
-        'HOST': 'cdb-eb7rrzgv.gz.tencentcdb.com',
-        'PORT':'10035',
+        'PASSWORD': '123456',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME':'dj_luttoapp',
+#         'USER': 'root',
+#         'PASSWORD': 'asdfghjkl-=',
+#         'HOST': 'cdb-eb7rrzgv.gz.tencentcdb.com',
+#         'PORT':'10035',
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators

@@ -8,16 +8,20 @@ urlpatterns = [
     url(r'login/', views.login, name='login'),
     # 注册
     url(r'regist/', views.regist, name='regist'),
-
-    # path('getUserById/<str:myid>', views.getUserById, name='getUserById'),
+    # 获取用户信息
     url(r'^getUser\w*/(?P<myid>\d+)', views.getUserById, name='getUserById'),
     url(r'^$', views.index, name='index'),
+    # 修改密码
     url(r'change/', views.changePassword, name='changePassword'),
-    # url(r'chuserinfo/',views.ChangeUserInfo,name='ChangeUserInfo'),
+    # 修改用户信息
     url(r'upuser/', views.UpUser, name='UpUser'),
+    # 添加用户地址
     url(r'useraddress/', views.UserAddress, name='UserAddress'),
+    # 删除用户地址
     url(r'deladdress/', views.delAddress, name='delAddress'),
+    # 获取用户
     url(r'getuserinfobytel/', views.GetNameByTel, name='GetNameByTel'),
+    #
     url(r'getaddress/', views.GetAddress, name='GetAddress'),
     url(r'upload/', views.upload, name='upload'),
     url(r'qiniutoken/', views.qiniuToken, name='qiniuToken'),

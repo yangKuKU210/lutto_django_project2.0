@@ -15,19 +15,17 @@ from . import models
 from datetime import datetime
 
 # Create your views here.
-
-
 def index(request):
     pass
 
-
 def getCourse(request):
     try:
+        # 获取课程信息
         course = list(
             course_models.Course.objects.all().values('id', 'name', 'consume_total', 'minute_avg', 'machine__name',
                                                       'picture__url'))
         return HttpResponse(json.dumps(course[0:20], ensure_ascii=False))
-        # return JsonResponse({"code":"200"})
+
     except Exception as ex:
         return JsonResponse({"code": "404"})
 
@@ -35,31 +33,35 @@ def getCourse(request):
 # 搜索课程
 def search(request, index, cname):
     # 获取类型为tid的全部对象
+    # 每页显示数据
     pagesize = 12
+    # 当前页码索引
     index = int(index)
+    # 开始页码
     start = pagesize * (index - 1)
+    # 结束页码
     end = pagesize * index
-
+    # 判断是否有搜索课程名
     if cname:
+        # 获取课程数据
         courses = models.Course.objects.order_by('-useraddcount').filter(name__icontains=cname)[start:end].values('id', 'name', 'day',
                                                                                         'type__type_name',
                                                                                         'level__level', 'picture__url')
     else:
         courses = models.Course.objects.order_by('-useraddcount').all()[start:end].values('id', 'name', 'day', 'type__type_name', 'level__level',
                                                                 'picture__url')
-    print(courses)
 
     # # 遍历每个对象
     for c in courses:
-
+        # 获取课程用户添加数
         c["useradd"] = AddCourse.objects.filter(course_id=c["id"]).count()
+        # 获取课程训练部位
         parts = models.CourseTrainPart.objects.filter(course_id=c["id"]).values('bodypart__bodypart')
         bodys = []
+        # 一个课程可以训练多个部位
         for part in parts:
             bodys.append(part['bodypart__bodypart'])
         c["trainbody"] = bodys
-        # course_list.append(c_dict)
-    # print(course_list)
 
     return HttpResponse(json.dumps(list(courses), ensure_ascii=False))
 
@@ -67,12 +69,13 @@ def search(request, index, cname):
 # 计算页码
 def pagecount(request, con):
     try:
+        # 判断是否有搜索内容
         if con:
+            # 根据搜索内容模糊查询个数
             len = models.Course.objects.filter(name__icontains=con).count()
-            print(len)
         else:
+            # 查询所有个数
             len = models.Course.objects.all().count()
-            print(len)
         return JsonResponse({"acount": len})
     except Exception as ex:
         return JsonResponse({"code": "500"})
@@ -100,55 +103,41 @@ def getcoursefenlei(request):
 # 通过课程类型id获取课程
 def getCourseByTypeid(request, index, tid):
     # 获取类型为tid的全部对象
+    # 每页显示数据
     pagesize = 6
+    # 当前索引
     index = int(index)
+    # 开始位置
     start = pagesize * (index - 1)
+    # 结束位置
     end = pagesize * index
-
+    # 获取课程信息
     courses = models.Course.objects.filter(type_id=tid)[start:end].values('id', 'name', 'day', 'type__type_name',
                                                                           'level__level', 'picture__url')
     course_list = []
     # 遍历每个对象
     for c in courses:
+        # 获取课程添加人数
         c["useradd"] = AddCourse.objects.filter(course_id=c["id"]).count()
+        # 获取课程训练部位
         parts = models.CourseTrainPart.objects.filter(course_id=c["id"]).values('bodypart__bodypart')
         bodys = []
+        # 一个课程训练多个动作
         for part in parts:
             bodys.append(part['bodypart__bodypart'])
         c["trainbody"] = bodys
-        # # 将每个对象转换为字典类型
-        # c_dict = model_to_dict(c)
-        # # 获取该类型课程数目
-        # c_dict["course_nums"] = courses.count()
-        # # 获取该类型课程名称
-        # c_dict["type"] = courses.values('type__type_name')[0]['type__type_name']
-        # # 获取该类型课程数目
-        # c_dict["level"] = courses.values('level__level')[0]['level__level']
-        # # 获取该类型课程数目
-        # c_dict["picture"] = courses.values('picture__url')[0]['picture__url']
-        # # 获取该类型课程数目
-        # c_dict["useradd"] = AddCourse.objects.filter(course_id=c.id).count()
-        # parts = models.CourseTrainPart.objects.filter(course_id=c.id).values('bodypart__bodypart')
-        # bodys = []
-        # for part in parts:
-        #     bodys.append(part['bodypart__bodypart'])
-        # c_dict["trainbody"] = bodys
-        # course_list.append(c_dict)
-    # print(course_list)
-    # print(courses)
     return HttpResponse(json.dumps(list(courses), ensure_ascii=False))
 
 
 # 通过课程类型id获取课程数目
 def pagecountbytid(request, con):
-    print(con)
     try:
         if con:
+            # 根据类型id 获取课程数
             len = models.Course.objects.filter(type_id=con).count()
-            print(len)
         else:
+            # 获取所有课程数
             len = models.Course.objects.all().count()
-            print(len)
         return JsonResponse({"acount": len})
     except Exception as ex:
         return JsonResponse({"code": "500"})
@@ -159,11 +148,13 @@ def pagecountbytid(request, con):
 def getCourseInfoById(request):
     # 获取类型为tid的全部对象
     try:
+        # 获取前台数据
         data = json.loads(request.body.decode('utf-8'))
-        print(data)
+        # 获取类型id
         cid = int(data['cid'])
         courses = models.Course.objects.filter(id=cid)
         course_list = []
+        #
         for course in courses:
             course_dict = model_to_dict(course)
             course_dict["picture"] = courses.values('picture__url')[0]['picture__url']
@@ -171,23 +162,29 @@ def getCourseInfoById(request):
             course_dict["picture"] = courses.values('picture__url')[0]['picture__url']
             course_dict["machine"] = courses.values('machine__name')[0]['machine__name']
             course_dict['type_name'] = courses.values('type__type_name')[0]['type__type_name']
+            # 默认用户没添加过该课程
             course_dict["add_flag"] = False
+            # 如果带有token
             if data['headers']['token']:
                 token = data['headers']['token']
+                # 解析token
                 res = toto.openToken(token)
+                # 解析成功
                 if res:
+                    # 查询用户是否添加过该课程
                     result = AddCourse.objects.filter(course_id=cid, user_id=res['user_id'])
                     if result:
+                        # 用户添加过该课程
                         course_dict["add_flag"] = True
-
+            # 获取客户添加人数
             course_dict["useradd"] = AddCourse.objects.filter(course_id=cid).count()
+            # 获取课程训练部位
             parts = models.CourseTrainPart.objects.filter(course_id=cid).values('bodypart__bodypart')
             bodys = []
             for part in parts:
                 bodys.append(part['bodypart__bodypart'])
             course_dict["trainbody"] = bodys
             course_list.append(course_dict)
-        # print(course_list)
 
         return HttpResponse(json.dumps(course_list, ensure_ascii=False))
     except Exception as ex:
@@ -202,7 +199,6 @@ def getActionByCid(request, cid):
     course_dict = model_to_dict(course)
     # 获取课程天数
     daymax = CourseAction.objects.filter(course_id=cid).latest('day_num').day_num
-    # courses = CourseAction.objects.filter(course_id=cid,day_num=1).values('action__name','action__times','action')
     days = []
     # 获取每天的动作信息
     for i in range(1, int(daymax) + 1):
@@ -212,7 +208,6 @@ def getActionByCid(request, cid):
         days.append(list(actions))
     course_dict['days'] = days
     return JsonResponse(course_dict)
-    # return HttpResponse(json.dumps(action_list, ensure_ascii=False))
 
 
 # 获取课程最新评论信息
@@ -292,7 +287,6 @@ def getHotCourseComment(request):
             res = toto.openToken(token)
             # 解析token
             # 判断是否登录
-            # models.CourseCommentLike.objects.filter('comment_id').count()
             comments = models.CourseComment.objects.order_by('-likes').filter(course_id=cid)
             # 新建list对数据封装
             comment_list = []
@@ -359,7 +353,6 @@ def replyComment(request):
             comment_id = int(data['comment_id'])
             token = data['headers']['token']
             res = toto.openToken(token)
-            # result=models.AddCourse.objects.filter(course_id=course_id,user_id=res['user_id']).values()
             if res:
                 addcomment = {
                     'comment_id': comment_id,
@@ -367,9 +360,7 @@ def replyComment(request):
                     'content': content,
                     'time':datetime.utcnow()
                 }
-                print(addcomment)
                 models.CourseCommentReply.objects.create(**addcomment)
-                # print(res['user_id'])
                 return JsonResponse({"code": "210"})
             else:
                 return JsonResponse({"code": "没登陆"})
@@ -385,7 +376,6 @@ def delCourseComment(request):
         # 需要 评论id  token
         if request.method == "POST":
             data = json.loads(request.body.decode('utf-8'))
-            # content = data['content']
             comment_id = int(data['commentid'])
             token = data['headers']['token']
             res = toto.openToken(token)
@@ -406,15 +396,11 @@ def delCourseReply(request):
         # 需要 回复id  token
         if request.method == "POST":
             data = json.loads(request.body.decode('utf-8'))
-            # content = data['content']
             replyid = int(data['replyid'])
             token = data['headers']['token']
             res = toto.openToken(token)
-            # result=models.AddCourse.objects.filter(course_id=course_id,user_id=res['user_id']).values()
             if res:
-
                 models.CourseCommentReply.objects.filter(id=replyid).delete()
-                # print(res['user_id'])
                 return JsonResponse({"code": "210"})
             else:
                 return JsonResponse({"code": "没登陆"})
@@ -433,7 +419,6 @@ def addCourse(request):
             token = data['headers']['token']
             # 解析token
             res = toto.openToken(token)
-            #
             if res:
                 result = user_models.AddCourse.objects.filter(course_id=course_id, user_id=res['user_id']).values()
                 addnum = models.Course.objects.filter(id=course_id).values('useraddcount')[0]['useraddcount']
@@ -448,7 +433,6 @@ def addCourse(request):
                         'user_id': res['user_id']
                     }
                     user_models.AddCourse.objects.create(**addcourse)
-                    # addnum = models.Course.objects.filter(id=course_id).values('useraddcount')[0]['useraddcount']
                     res = addnum + 1
                     models.Course.objects.filter(id=course_id).update(useraddcount=res)
                     return JsonResponse({"code": "210"})
